@@ -13,11 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
-
+# SECRET_KEY = 'django-insecure-6vw9jc1=^&@b64f$_)#$@+^uu3o2h@yb8e=kf2=@%xwq+c)g7@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', "False").lower() == "true"
+# DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(' ')
+# ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', '*']
 
 # CSRF settings
 # CSRF_TRUSTED_ORIGINS = ['https://*.repl.co', 'https://*.replit.app']
