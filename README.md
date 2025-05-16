@@ -27,8 +27,37 @@ A full-stack status page application built with Django and Bootstrap that allows
 - pip (Python package manager)
 - PostgreSQL (optional, can use SQLite for development)
 
-1. Clone the repository:
-   git clone
+Installation
+Clone the repository:
+
+bash
+git clone https://github.com/yourusername/statuspage-app.git
+cd statuspage-app
+Create and activate a virtual environment:
+
+bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+Install dependencies:
+
+bash
+pip install -r requirements.txt
+Configure environment variables:
+
+Copy .env.example to .env and fill in your settings.
+
+Apply migrations:
+
+bash
+python manage.py migrate
+Create a superuser:
+
+bash
+python manage.py createsuperuser
+Run the development server:
+
+bash
+python manage.py runserver
 
 ### Checkout the deployed application here: 
 https://statustracker-1.onrender.com/
