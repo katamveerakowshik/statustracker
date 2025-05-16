@@ -15,7 +15,7 @@ class OrganizationForm(forms.ModelForm):
         }
         
         
-# class TeamForm(forms.ModelForm):
+class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ['name', 'description']
