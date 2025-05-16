@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.name }} - Status Page{% endblock %}
+
+{% block header %}Service: {{ service.name }}{% endblock %}
+
+{% block header_actions %}
+<li class="nav-item">
+    <a class="btn btn-outline-primary me-2" href="{% url 'service_update' service.id %}">
+        <i data-feather="edit" style="width: 14px; height: 14px;"></i> Edit
+    </a>
+    <a class="btn btn-outline-secondary" href="{% url 'service_list' %}">
+        Back
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Service Details -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Service Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h3>
+                        {{ service.name }}
+                        <span class="status-badge status-{{ service.status }} ms-2">
+                            {{ service.get_status_display }}
+                        </span>
+                    </h3>
+                    {% if service.description %}
+                    <p class="text-muted">{{ service.description }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Organization:</div>
+                    <div class="col-md-8">{{ service.organization.name }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Created:</div>
+                    <div class="col-md-8">{{ service.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Last Updated:</div>
+                    <div class="col-md-8">{{ service.updated_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Incidents -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Incidents</h5>
+                <a href="{% url 'incident_create' %}" class="btn btn-sm btn-outline-primary">
+                    <i data-feather="plus" style="width: 14px; height: 14px;"></i> New Incident
+                </a>
+            </div>
+            <div class="card-body">
+                {% if service.incidents.exists %}
+                <div class="list-group">
+                    {% for incident in service.incidents.all|slice:":5" %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1">{{ incident.title }}</h6>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <small class="text-muted">{{ incident.created_at|date:"M d, Y H:i" }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No incidents for this service</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status History (mock placeholder) -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Status History</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <p class="mb-0">Uptime metrics and status history visualization will be available in the future.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

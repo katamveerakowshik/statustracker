@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Status Page{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --linear-primary: #4F58C4;
+            --linear-hover: #3F48B4;
+            --linear-sidebar: #FFFFFF;
+            --linear-background: #F8F9FA;
+            --linear-card-bg: #FFFFFF;
+            --linear-text: #2D3748;
+            --linear-text-light: #718096;
+            --linear-border: #E2E8F0;
+            --status-operational: #34D399;
+            --status-degraded: #FBBF24;
+            --status-partial: #F97316;
+            --status-major: #EF4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--linear-text);
+            background-color: var(--linear-background);
+        }
+        
+        .sidebar {
+            background-color: var(--linear-sidebar);
+            border-right: 1px solid var(--linear-border);
+            height: 100vh;
+            position: fixed;
+            width: 240px;
+            z-index: 1000;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+        }
+        
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+        
+        .navbar {
+            background-color: var(--linear-sidebar);
+            border-bottom: 1px solid var(--linear-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--linear-primary);
+        }
+        
+        .nav-link {
+            color: var(--linear-text);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(79, 88, 180, 0.1);
+            color: var(--linear-primary);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            margin-right: 6px;
+        }
+        
+        .btn-primary {
+            background-color: var(--linear-primary);
+            border-color: var(--linear-primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--linear-hover);
+            border-color: var(--linear-hover);
+        }
+        
+        .card {
+            border-radius: 8px;
+            border: 1px solid var(--linear-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            background-color: var(--linear-card-bg);
+            color: var(--linear-text);
+        }
+        
+        .card-header {
+            border-bottom: 1px solid var(--linear-border);
+            background-color: var(--linear-card-bg);
+            font-weight: 600;
+            color: var(--linear-text);
+        }
+        
+        .card-body {
+            color: var(--linear-text);
+        }
+        
+        .status-badge {
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            border-radius: 16px;
+        }
+        
+        .status-operational {
+            background-color: rgba(52, 211, 153, 0.15);
+            color: #059669;
+        }
+        
+        .status-degraded {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: #B45309;
+        }
+        
+        .status-partial_outage {
+            background-color: rgba(249, 115, 22, 0.15);
+            color: #C2410C;
+        }
+        
+        .status-major_outage {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #B91C1C;
+        }
+        
+        .organization-switcher {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .organization-switcher-button {
+            display: flex;
+            align-items: center;
+            background-color: var(--linear-card-bg);
+            border: 1px solid var(--linear-border);
+            border-radius: 6px;
+            padding: 0.4rem 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--linear-text);
+        }
+        
+        .organization-switcher-button:hover {
+            background-color: #F8F9FA;
+        }
+        
+        .organization-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            width: 220px;
+            background-color: var(--linear-card-bg);
+            border: 1px solid var(--linear-border);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 0.25rem;
+            color: var(--linear-text);
+        }
+        
+        .organization-menu.show {
+            display: block;
+        }
+        
+        .organization-menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: var(--linear-text);
+        }
+        
+        .organization-menu-item:hover {
+            background-color: #F8F9FA;
+        }
+        
+        .organization-menu-item.active {
+            background-color: rgba(79, 88, 180, 0.1);
+            color: var(--linear-primary);
+        }
+        
+        .text-muted {
+            color: var(--linear-text-light) !important;
+        }
+        
+        /* Light theme form elements */
+        .form-control, .form-select {
+            background-color: #FFFFFF;
+            border: 1px solid var(--linear-border);
+            color: var(--linear-text);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #FFFFFF;
+            color: var(--linear-text);
+            border-color: var(--linear-primary);
+            box-shadow: 0 0 0 0.2rem rgba(79, 88, 180, 0.15);
+        }
+        
+        /* Auth styling for login and signup pages */
+        .auth-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .auth-card {
+            background-color: var(--linear-card-bg);
+            border: 1px solid var(--linear-border);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-title {
+            color: var(--linear-text);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .auth-form input {
+            background-color: #FFFFFF;
+            border: 1px solid var(--linear-border);
+            color: var(--linear-text);
+        }
+        
+        .auth-form input:focus {
+            background-color: #FFFFFF;
+            color: var(--linear-text);
+            border-color: var(--linear-primary);
+            box-shadow: 0 0 0 0.2rem rgba(79, 88, 180, 0.15);
+        }
+        
+        .auth-form label {
+            color: var(--linear-text-light);
+            font-weight: 500;
+        }
+        
+        .auth-form .form-text {
+            color: var(--linear-text-light);
+        }
+        
+        .auth-links {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .auth-links a {
+            color: var(--linear-primary);
+            text-decoration: none;
+        }
+        
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -1.5rem;
+            height: 100%;
+            width: 2px;
+            background-color: var(--linear-border);
+        }
+        
+        .timeline-item:last-child:before {
+            height: 1rem;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -1.625rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--linear-primary);
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+    
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="d-flex flex-column h-100">
+            <div class="p-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 text-primary">Status Page</h5>
+                    <button class="btn btn-sm btn-light d-lg-none" id="sidebar-close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+            </div>
+            
+            {% if current_organization %}
+            <div class="p-3">
+                <div class="organization-switcher">
+                    <div class="organization-switcher-button" id="org-switcher-button">
+                        <span>{{ current_organization.name }}</span>
+                        <i data-feather="chevron-down" class="ms-auto" style="width: 16px; height: 16px;"></i>
+                    </div>
+                    
+                    <div class="organization-menu" id="org-menu">
+                        {% for org in user_organizations %}
+                        <div class="organization-menu-item {% if org.id == current_organization.id %}active{% endif %}" 
+                             data-org-id="{{ org.id }}">
+                            {{ org.name }}
+                        </div>
+                        {% endfor %}
+                        <hr class="my-1">
+                        <div class="organization-menu-item" onclick="window.location.href='{% url 'organization_create' %}'">
+                            <i data-feather="plus" style="width: 14px; height: 14px;"></i> Create Organization
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                           href="{% url 'dashboard' %}">
+                            <i data-feather="grid"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'service_list' %}active{% endif %}" 
+                           href="{% url 'service_list' %}">
+                            <i data-feather="server"></i> Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'incident_list' %}active{% endif %}" 
+                           href="{% url 'incident_list' %}">
+                            <i data-feather="alert-triangle"></i> Incidents
+                        </a>
+                    </li>
+                    {% if current_organization %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'public_status' current_organization.slug %}" target="_blank">
+                            <i data-feather="eye"></i> Public Status Page
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <hr>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'organization_list' %}active{% endif %}" 
+                           href="{% url 'organization_list' %}">
+                            <i data-feather="briefcase"></i> Organizations
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="mt-auto p-3 border-top">
+                <div class="d-flex align-items-center">
+                    <div class="me-2">
+                        <i data-feather="user" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-medium">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="small text-muted">{{ user.email }}</div>
+                    </div>
+                    <a href="{% url 'account_logout' %}" class="btn btn-sm btn-light ms-auto">
+                        <i data-feather="log-out" style="width: 16px; height: 16px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="{% if user.is_authenticated %}main-content{% endif %}">
+        {% if user.is_authenticated %}
+        <nav class="navbar navbar-expand-lg mb-4">
+            <div class="container-fluid">
+                <button class="btn btn-sm sidebar-toggle d-lg-none me-3" id="sidebar-toggle" style="display: none;">
+                    <i data-feather="menu"></i>
+                </button>
+                
+                <div class="d-flex">
+                    <h4 class="mb-0">{% block header %}Dashboard{% endblock %}</h4>
+                </div>
+                
+                <ul class="navbar-nav ms-auto">
+                    {% block header_actions %}{% endblock %}
+                </ul>
+            </div>
+        </nav>
+        {% endif %}
+        
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Initialize Feather Icons -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        feather.replace();
+        
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarClose = document.getElementById('sidebar-close');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+        }
+        
+        if (sidebarClose && sidebar) {
+            sidebarClose.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+            });
+        }
+        
+        // Organization switcher
+        const orgSwitcherButton = document.getElementById('org-switcher-button');
+        const orgMenu = document.getElementById('org-menu');
+        
+        if (orgSwitcherButton && orgMenu) {
+            orgSwitcherButton.addEventListener('click', function() {
+                orgMenu.classList.toggle('show');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!orgSwitcherButton.contains(event.target) && !orgMenu.contains(event.target)) {
+                    orgMenu.classList.remove('show');
+                }
+            });
+            
+            // Handle organization selection
+            const orgItems = document.querySelectorAll('.organization-menu-item[data-org-id]');
+            orgItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    const orgId = this.getAttribute('data-org-id');
+                    
+                    fetch(`/organizations/set-current/${orgId}/`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            window.location.reload();
+                        }
+                    });
+                });
+            });
+        }
+      });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

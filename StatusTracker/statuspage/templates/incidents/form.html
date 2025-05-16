@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.id %}Edit{% else %}New{% endif %} {{ form.instance.get_type_display|default:"Incident" }} - Status Page{% endblock %}
+
+{% block header %}{% if form.instance.id %}Edit{% else %}New{% endif %} {{ form.instance.get_type_display|default:"Incident" }}{% endblock %}
+
+{% block header_actions %}
+<li class="nav-item">
+    <a class="btn btn-outline-secondary" href="{% if form.instance.id %}{% url 'incident_detail' form.instance.id %}{% else %}{% url 'incident_list' %}{% endif %}">
+        Cancel
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% if form.instance.id %}Edit{% else %}New{% endif %} {{ form.instance.get_type_display|default:"Incident" }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.type.id_for_label }}" class="form-label">Type</label>
+                        {{ form.type }}
+                        {% if form.type.errors %}
+                        <div class="text-danger small mt-1">{{ form.type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.impact.id_for_label }}" class="form-label">Impact</label>
+                            {{ form.impact }}
+                            {% if form.impact.errors %}
+                            <div class="text-danger small mt-1">{{ form.impact.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Affected Services</label>
+                        <div class="services-grid">
+                            {% for service in form.services %}
+                            <div class="form-check service-item">
+                                {{ service.tag }}
+                                <label class="form-check-label" for="{{ service.id_for_label }}">
+                                    {{ service.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.services.errors %}
+                        <div class="text-danger small mt-1">{{ form.services.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="maintenance-fields">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.scheduled_start.id_for_label }}" class="form-label">Scheduled Start</label>
+                                {{ form.scheduled_start }}
+                                {% if form.scheduled_start.errors %}
+                                <div class="text-danger small mt-1">{{ form.scheduled_start.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.scheduled_end.id_for_label }}" class="form-label">Scheduled End</label>
+                                {{ form.scheduled_end }}
+                                {% if form.scheduled_end.errors %}
+                                <div class="text-danger small mt-1">{{ form.scheduled_end.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% if form.instance.id %}{% url 'incident_detail' form.instance.id %}{% else %}{% url 'incident_list' %}{% endif %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeField = document.getElementById('id_type');
+        const maintenanceFields = document.querySelector('.maintenance-fields');
+        const statusField = document.getElementById('id_status');
+        
+        function toggleMaintenanceFields() {
+            if (typeField.value === 'maintenance') {
+                maintenanceFields.style.display = 'block';
+                
+                // Update status options for maintenance
+                updateStatusOptions(true);
+            } else {
+                maintenanceFields.style.display = 'none';
+                
+                // Update status options for incident
+                updateStatusOptions(false);
+            }
+        }
+        
+        function updateStatusOptions(isMaintenance) {
+            // Reset options
+            statusField.innerHTML = '';
+            
+            if (isMaintenance) {
+                // Maintenance options
+                const options = [
+                    ['scheduled', 'Scheduled'],
+                    ['in_progress', 'In Progress'],
+                    ['completed', 'Completed']
+                ];
+                
+                options.forEach(function(option) {
+                    const opt = document.createElement('option');
+                    opt.value = option[0];
+                    opt.textContent = option[1];
+                    statusField.appendChild(opt);
+                });
+            } else {
+                // Incident options
+                const options = [
+                    ['investigating', 'Investigating'],
+                    ['identified', 'Identified'],
+                    ['monitoring', 'Monitoring'],
+                    ['resolved', 'Resolved']
+                ];
+                
+                options.forEach(function(option) {
+                    const opt = document.createElement('option');
+                    opt.value = option[0];
+                    opt.textContent = option[1];
+                    statusField.appendChild(opt);
+                });
+            }
+        }
+        
+        // Initialize
+        toggleMaintenanceFields();
+        
+        // Add change event listener
+        typeField.addEventListener('change', toggleMaintenanceFields);
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background-color: var(--linear-background);
+        border: 1px solid var(--linear-border);
+        border-radius: 8px;
+    }
+    
+    .service-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--linear-card-bg);
+        border: 1px solid var(--linear-border);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        min-height: 60px;
+    }
+    
+    .service-item .form-check-input {
+        flex-shrink: 0;
+        width: 1.4em;
+        height: 1.4em;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    
+    .service-item .form-check-label {
+        margin-left: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: 0.01em;
+    }
+</style>
+{% endblock %}

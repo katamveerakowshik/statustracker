@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ incident.title }} - Status Page{% endblock %}
+
+{% block header %}{{ incident.get_type_display }}: {{ incident.title }}{% endblock %}
+
+{% block header_actions %}
+<li class="nav-item">
+    <a class="btn btn-outline-primary me-2" href="{% url 'incident_update' incident.id %}">
+        <i data-feather="edit" style="width: 14px; height: 14px;"></i> Edit
+    </a>
+    <a class="btn btn-outline-secondary" href="{% url 'incident_list' %}">
+        Back
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Incident Details -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h4>
+                        {{ incident.title }}
+                    </h4>
+                    <span class="status-badge status-{{ incident.status }} mb-2">
+                        {{ incident.get_status_display }}
+                    </span>
+                    <span class="status-badge status-{{ incident.impact }} ms-1 mb-2">
+                        {{ incident.get_impact_display }} Impact
+                    </span>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-5 text-muted">Type:</div>
+                    <div class="col-md-7">{{ incident.get_type_display }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-5 text-muted">Created:</div>
+                    <div class="col-md-7">{{ incident.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-5 text-muted">Last Updated:</div>
+                    <div class="col-md-7">{{ incident.updated_at|date:"M d, Y H:i" }}</div>
+                </div>
+                
+                {% if incident.type == 'maintenance' %}
+                <div class="row mb-2">
+                    <div class="col-md-5 text-muted">Scheduled Start:</div>
+                    <div class="col-md-7">{{ incident.scheduled_start|default:"Not set"|date:"M d, Y H:i" }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-5 text-muted">Scheduled End:</div>
+                    <div class="col-md-7">{{ incident.scheduled_end|default:"Not set"|date:"M d, Y H:i" }}</div>
+                </div>
+                {% endif %}
+                
+                <hr>
+                
+                <h6 class="mb-2">Affected Services</h6>
+                {% if incident.services.exists %}
+                <div class="list-group">
+                    {% for service in incident.services.all %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ service.name }}
+                        <span class="status-badge status-{{ service.status }}">{{ service.get_status_display }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No services affected</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Incident Updates -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Updates</h5>
+            </div>
+            <div class="card-body">
+                <!-- Update Timeline -->
+                {% if updates %}
+                <h6 class="mb-3">Update Timeline</h6>
+                <div class="timeline">
+                    {% for update in updates %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="status-badge status-{{ update.status }}">{{ update.get_status_display }}</span>
+                                    <small class="text-muted">{{ update.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <p class="mb-0">{{ update.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No updates yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

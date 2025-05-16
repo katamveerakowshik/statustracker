@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.id %}Edit{% else %}New{% endif %} Organization - Status Page{% endblock %}
+
+{% block header %}{% if form.instance.id %}Edit{% else %}New{% endif %} Organization{% endblock %}
+
+{% block header_actions %}
+<li class="nav-item">
+    <a class="btn btn-outline-secondary" href="{% url 'organization_list' %}">
+        Cancel
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Organization Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Organization Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.slug.id_for_label }}" class="form-label">Slug</label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                        <div class="text-danger small mt-1">{{ form.slug.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.slug.help_text }}</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'organization_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Organization</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameField = document.getElementById('id_name');
+        const slugField = document.getElementById('id_slug');
+        
+        // Generate slug from name
+        function generateSlug(text) {
+            return text.toLowerCase()
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+        }
+        
+        // Only auto-generate slug if it's a new organization (empty slug)
+        if (nameField && slugField && !slugField.value) {
+            nameField.addEventListener('input', function() {
+                slugField.value = generateSlug(nameField.value);
+            });
+        }
+    });
+</script>
+{% endblock %}

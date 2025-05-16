@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Status Page{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Create Account</h2>
+        <p class="text-center mb-4" style="color: var(--linear-text-light);">Get started with your status page</p>
+        
+        <form method="post" action="{% url 'account_signup' %}" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Email</label>
+                <input type="email" name="email" placeholder="Email address" class="form-control" required id="id_email">
+                {% if form.email.errors %}
+                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_first_name" class="form-label">First Name</label>
+                    <input type="text" name="first_name" placeholder="First name" class="form-control" id="id_first_name">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="id_last_name" class="form-label">Last Name</label>
+                    <input type="text" name="last_name" placeholder="Last name" class="form-control" id="id_last_name">
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_password1" class="form-label">Password</label>
+                <input type="password" name="password1" placeholder="Password" class="form-control" required id="id_password1">
+                {% if form.password1.errors %}
+                <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_password2" class="form-label">Confirm Password</label>
+                <input type="password" name="password2" placeholder="Confirm password" class="form-control" required id="id_password2">
+                {% if form.password2.errors %}
+                <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+            </div>
+        </form>
+        
+        <div class="auth-links">
+            <p>Already have an account? <a href="{% url 'account_login' %}">Sign in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

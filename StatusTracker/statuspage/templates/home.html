@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Status Page - Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">Real-time Status Page</h1>
+                <p class="lead text-muted">Monitor and share your services' status in real-time with a beautiful status page.</p>
+                
+                {% if user.is_authenticated %}
+                <div class="mt-4">
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+                </div>
+                {% else %}
+                <div class="mt-4">
+                    <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg px-4 me-2">Sign In</a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-outline-secondary btn-lg px-4">Sign Up</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="card mb-5">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <h3>Keep your users informed</h3>
+                            <p class="text-muted mb-4">Provide transparency about your service status with a professional status page that updates in real-time.</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i data-feather="check" class="text-success me-2"></i> Real-time updates</li>
+                                <li class="mb-2"><i data-feather="check" class="text-success me-2"></i> Service monitoring</li>
+                                <li class="mb-2"><i data-feather="check" class="text-success me-2"></i> Incident management</li>
+                                <li class="mb-2"><i data-feather="check" class="text-success me-2"></i> Team collaboration</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-4 rounded">
+                                <h5 class="mb-3">Service Status Example</h5>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>API</span>
+                                    <span class="status-badge status-operational">Operational</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Website</span>
+                                    <span class="status-badge status-degraded">Degraded Performance</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Database</span>
+                                    <span class="status-badge status-partial_outage">Partial Outage</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Payments</span>
+                                    <span class="status-badge status-major_outage">Major Outage</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i data-feather="bar-chart-2" class="text-primary" style="width: 24px; height: 24px;"></i>
+                                <h5 class="mb-0 ms-2">Status Monitoring</h5>
+                            </div>
+                            <p class="text-muted">Monitor the status of your services and keep everyone informed.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i data-feather="alert-circle" class="text-primary" style="width: 24px; height: 24px;"></i>
+                                <h5 class="mb-0 ms-2">Incident Management</h5>
+                            </div>
+                            <p class="text-muted">Create and manage incidents with real-time updates and notifications.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i data-feather="users" class="text-primary" style="width: 24px; height: 24px;"></i>
+                                <h5 class="mb-0 ms-2">Team Collaboration</h5>
+                            </div>
+                            <p class="text-muted">Work together with your team to manage and communicate status changes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">© 2023 Status Page. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

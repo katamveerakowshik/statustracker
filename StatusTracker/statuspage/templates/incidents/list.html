@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load statuspage_filters %}
+
+{% block title %}Incidents - Status Page{% endblock %}
+
+{% block header %}Incidents{% endblock %}
+
+{% block header_actions %}
+{% if current_organization %}
+<li class="nav-item">
+    <a class="btn btn-primary" href="{% url 'incident_create' %}">
+        <i data-feather="plus" style="width: 14px; height: 14px;"></i> New Incident
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not current_organization %}
+<div class="alert alert-info">
+    <h5>Create an Organization First</h5>
+    <p>You need to create or join an organization before managing incidents.</p>
+    <a href="{% url 'organization_create' %}" class="btn btn-primary">Create Organization</a>
+</div>
+{% else %}
+
+<!-- Incidents List -->
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="incidentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="true">Active</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="resolved-tab" data-bs-toggle="tab" data-bs-target="#resolved" type="button" role="tab" aria-controls="resolved" aria-selected="false">Resolved</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="maintenance-tab" data-bs-toggle="tab" data-bs-target="#maintenance" type="button" role="tab" aria-controls="maintenance" aria-selected="false">Maintenance</button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="incidentTabContent">
+            <!-- Active Incidents -->
+            <div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+                {% with active_incidents=incidents|dictsortreversed:"created_at"|filter_active_incidents %}
+                {% if active_incidents %}
+                <div class="list-group">
+                    {% for incident in active_incidents %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h5 class="mb-1">{{ incident.title }}</h5>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted">Affected services:</small>
+                            {% for service in incident.services.all %}
+                            <small class="me-2">{{ service.name }}</small>
+                            {% empty %}
+                            <small class="text-muted">None</small>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Started {{ incident.created_at|date:"M d, Y H:i" }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No active incidents</p>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            
+            <!-- Resolved Incidents -->
+            <div class="tab-pane fade" id="resolved" role="tabpanel" aria-labelledby="resolved-tab">
+                {% with resolved_incidents=incidents|dictsortreversed:"updated_at"|filter_resolved_incidents %}
+                {% if resolved_incidents %}
+                <div class="list-group">
+                    {% for incident in resolved_incidents %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h5 class="mb-1">{{ incident.title }}</h5>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted">Affected services:</small>
+                            {% for service in incident.services.all %}
+                            <small class="me-2">{{ service.name }}</small>
+                            {% empty %}
+                            <small class="text-muted">None</small>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Resolved {{ incident.updated_at|date:"M d, Y H:i" }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No resolved incidents</p>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            
+            <!-- Maintenance -->
+            <div class="tab-pane fade" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+                {% with maintenance=incidents|filter_maintenance %}
+                {% if maintenance %}
+                <div class="list-group">
+                    {% for incident in maintenance %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h5 class="mb-1">{{ incident.title }}</h5>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <div class="mb-1">
+                            <small class="text-muted">Affected services:</small>
+                            {% for service in incident.services.all %}
+                            <small class="me-2">{{ service.name }}</small>
+                            {% empty %}
+                            <small class="text-muted">None</small>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small>
+                                {% if incident.scheduled_start %}
+                                <span class="text-muted">Scheduled: {{ incident.scheduled_start|date:"M d, Y H:i" }}</span>
+                                {% endif %}
+                            </small>
+                            <small class="text-muted">Created {{ incident.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No scheduled maintenance</p>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Custom filter functions for Django templates
+    var incidents = {{ incidents|safe }};
+    
+    function filterActiveIncidents(incidents) {
+        return incidents.filter(function(incident) {
+            return incident.type === 'incident' && 
+                  ['investigating', 'identified', 'monitoring'].includes(incident.status);
+        });
+    }
+    
+    function filterResolvedIncidents(incidents) {
+        return incidents.filter(function(incident) {
+            return incident.type === 'incident' && incident.status === 'resolved';
+        });
+    }
+    
+    function filterMaintenance(incidents) {
+        return incidents.filter(function(incident) {
+            return incident.type === 'maintenance';
+        });
+    }
+</script>
+{% endblock %}

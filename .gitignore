@@ -1,0 +1,5 @@
+/env/
+/StatusTracker/statuspage/__pycache__/
+/StatusTracker/statuspage/migrations/
+/StatusTracker/db.sqlite3
+/StatusTracker/statuspage_project/__pycache__/

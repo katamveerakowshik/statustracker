@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Services - Status Page{% endblock %}
+
+{% block header %}Services{% endblock %}
+
+{% block header_actions %}
+{% if current_organization %}
+<li class="nav-item">
+    <a class="btn btn-primary" href="{% url 'service_create' %}">
+        <i data-feather="plus" style="width: 14px; height: 14px;"></i> New Service
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not current_organization %}
+<div class="alert alert-info">
+    <h5>Create an Organization First</h5>
+    <p>You need to create or join an organization before managing services.</p>
+    <a href="{% url 'organization_create' %}" class="btn btn-primary">Create Organization</a>
+</div>
+{% else %}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">All Services</h5>
+    </div>
+    
+    <div class="card-body">
+        {% if services %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr>
+                        <td>{{ service.name }}</td>
+                        <td>{{ service.description|truncatechars:50 }}</td>
+                        <td>
+                            <span class="status-badge status-{{ service.status }}">
+                                {{ service.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ service.updated_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'service_update' service.id %}" class="btn btn-sm btn-outline-primary">
+                                <i data-feather="edit" style="width: 14px; height: 14px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted mb-3">No services added yet</p>
+            <a href="{% url 'service_create' %}" class="btn btn-primary">Add Service</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

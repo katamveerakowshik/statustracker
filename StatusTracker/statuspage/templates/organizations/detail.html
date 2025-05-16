@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.name }} - Status Page{% endblock %}
+
+{% block header %}Organization: {{ organization.name }}{% endblock %}
+
+{% block header_actions %}
+<li class="nav-item">
+    <a class="btn btn-outline-primary me-2" href="{% url 'organization_update' organization.id %}">
+        <i data-feather="edit" style="width: 14px; height: 14px;"></i> Edit
+    </a>
+    <a class="btn btn-outline-secondary" href="{% url 'organization_list' %}">
+        Back
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Organization Details -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Organization Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h3>{{ organization.name }}</h3>
+                    <p class="text-muted">
+                        <i data-feather="link" style="width: 16px; height: 16px;"></i>
+                        <a href="{% url 'public_status' organization.slug %}" target="_blank" class="text-decoration-none">
+                            {{ request.scheme }}://{{ request.get_host }}{% url 'public_status' organization.slug %}
+                        </a>
+                    </p>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Slug:</div>
+                    <div class="col-md-8">{{ organization.slug }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Created:</div>
+                    <div class="col-md-8">{{ organization.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Services:</div>
+                    <div class="col-md-8">{{ organization.services.count }}</div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-md-4 text-muted">Members:</div>
+                    <div class="col-md-8">{{ organization.members.count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Members -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Team Members</h5>
+                <!-- Add member button - would be implemented in a more complete version -->
+                <button type="button" class="btn btn-sm btn-outline-primary">
+                    <i data-feather="user-plus" style="width: 14px; height: 14px;"></i> Add Member
+                </button>
+            </div>
+            <div class="card-body">
+                {% if organization.members.exists %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for membership in organization.members.all %}
+                            <tr>
+                                <td>{{ membership.user.get_full_name|default:membership.user.username }}</td>
+                                <td>{{ membership.user.email }}</td>
+                                <td>
+                                    <span class="badge {% if membership.role == 'admin' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ membership.get_role_display }}
+                                    </span>
+                                </td>
+                                <td>{{ membership.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <!-- Actions would be implemented in a more complete version -->
+                                    <button class="btn btn-sm btn-outline-secondary" {% if membership.user == request.user %}disabled{% endif %}>
+                                        <i data-feather="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No team members yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Organization Stats -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Overview</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ organization.services.count }}</h3>
+                        <div class="text-muted">Services</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3 mb-md-0">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ organization.incidents.count }}</h3>
+                        <div class="text-muted">Total Incidents</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3 mb-md-0">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        {% with active_count=organization.incidents.all|length %}
+                        <h3 class="mb-0">{{ active_count }}</h3>
+                        <div class="text-muted">Active Incidents</div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ organization.members.count }}</h3>
+                        <div class="text-muted">Team Members</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

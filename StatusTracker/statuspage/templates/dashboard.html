@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Status Page{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block header_actions %}
+{% if current_organization %}
+<li class="nav-item">
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'public_status' current_organization.slug %}" target="_blank">
+        <i data-feather="external-link" style="width: 14px; height: 14px;"></i>
+        View Public Page
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not current_organization %}
+<div class="alert alert-info">
+    <h5>Welcome to Status Page!</h5>
+    <p>You don't have any organizations yet. Create one to get started.</p>
+    <a href="{% url 'organization_create' %}" class="btn btn-primary">Create Organization</a>
+</div>
+{% else %}
+
+<!-- Services Overview -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Services Overview</h5>
+        <a href="{% url 'service_list' %}" class="btn btn-sm btn-outline-primary">
+            Manage Services
+        </a>
+    </div>
+    <div class="card-body">
+        {% if services %}
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100" data-service-id="{{ service.id }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">{{ service.name }}</h6>
+                            <span class="status-badge status-{{ service.status }}">{{ service.get_status_display }}</span>
+                        </div>
+                        {% if service.description %}
+                        <p class="text-muted small mb-0">{{ service.description|truncatechars:80 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted mb-3">No services added yet</p>
+            <a href="{% url 'service_create' %}" class="btn btn-primary">Add Service</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Incidents -->
+<div class="row">
+    <!-- Active Incidents -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Active Incidents</h5>
+                <a href="{% url 'incident_create' %}" class="btn btn-sm btn-outline-primary">
+                    <i data-feather="plus" style="width: 14px; height: 14px;"></i> New Incident
+                </a>
+            </div>
+            <div class="card-body" id="active-incidents">
+                {% if active_incidents %}
+                <div class="list-group">
+                    {% for incident in active_incidents %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action" data-incident-id="{{ incident.id }}">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1">{{ incident.title }}</h6>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted affected-services">
+                                {% for service in incident.services.all %}
+                                <span class="badge bg-light text-dark me-1" data-service-id="{{ service.id }}">{{ service.name }}</span>
+                                {% endfor %}
+                            </small>
+                            <small class="text-muted">{{ incident.created_at|date:"M d, H:i" }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No active incidents</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Resolved Incidents -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Resolved Incidents</h5>
+                <a href="{% url 'incident_list' %}" class="btn btn-sm btn-outline-secondary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if resolved_incidents %}
+                <div class="list-group">
+                    {% for incident in resolved_incidents %}
+                    <a href="{% url 'incident_detail' incident.id %}" class="list-group-item list-group-item-action" data-incident-id="{{ incident.id }}">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1">{{ incident.title }}</h6>
+                            <span class="status-badge status-{{ incident.status }}">{{ incident.get_status_display }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted affected-services">
+                                {% for service in incident.services.all %}
+                                <span class="badge bg-light text-dark me-1" data-service-id="{{ service.id }}">{{ service.name }}</span>
+                                {% endfor %}
+                            </small>
+                            <small class="text-muted">Resolved {{ incident.updated_at|date:"M d, H:i" }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No resolved incidents</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if current_organization %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up WebSocket for real-time updates
+    const organizationId = "{{ current_organization.id }}";
+    setupStatusUpdates(organizationId);
+});
+</script>
+{% endif %}
+{% endblock %}
